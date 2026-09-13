@@ -61,6 +61,82 @@ public class Main {
 					System.out.println("no hay archivos txt");
 				}
 				break;
+			case "2":
+				if (contador1 == 0 && contador2 == 0) {
+					System.out.println("[AVISO] No hay alumnos cargados en el sistema. Cargue los archivos primero (Opcion 1).");
+				} else if(solicitudes[0] == null) {
+					System.out.println("Sin solicitudes");
+				} else {
+					int aceptados = 0;
+					int rechazados = 0;
+			
+					for(int p = 0; p < solicitudes.length; p++) {
+						if(solicitudes[p] != null) {
+							boolean encontrado = false;
+							
+							for(int k = 0; k < alumnosC1.length; k++) {
+								if(solicitudes[p].equals(alumnosC1[k])) {
+									String[] partesAceptadosC1 = solicitudes[p].split("-");
+									System.out.println("[OK]       " + partesAceptadosC1[0] + " " + partesAceptadosC1[1] + " en C1");
+									
+									boolean yaEnGrupo = false;
+									for(int g = 0; g < cantGrupoC1; g++) {
+										if(grupoC1[g] != null && grupoC1[g].equals(alumnosC1[k])) {
+											yaEnGrupo = true;
+											break;
+										}
+									}
+									if(!yaEnGrupo && cantGrupoC1 < grupoC1.length) {
+										grupoC1[cantGrupoC1] = alumnosC1[k];
+										rutGrupoC1[cantGrupoC1] = rutC1[k];
+										cantGrupoC1++;
+									}
+									
+									aceptados++;
+									encontrado = true;
+									break;
+								}
+							}
+							if(encontrado == false) {
+								for(int k = 0; k < alumnosC2.length; k++) {
+									if(solicitudes[p].equals(alumnosC2[k])) {
+										String[] partesAceptadosC2 = solicitudes[p].split("-");
+										System.out.println("[OK]       " + partesAceptadosC2[0] + " " + partesAceptadosC2[1] + " en C2");
+										
+										boolean yaEnGrupo = false;
+										for(int g = 0; g < cantGrupoC2; g++) {
+											if(grupoC2[g] != null && grupoC2[g].equals(alumnosC2[k])) {
+												yaEnGrupo = true;
+												break;
+											}
+										}
+										if(!yaEnGrupo && cantGrupoC2 < grupoC2.length) {
+											grupoC2[cantGrupoC2] = alumnosC2[k];
+											rutGrupoC2[cantGrupoC2] = rutC2[k];
+											cantGrupoC2++;
+										}
+										
+										aceptados++;
+										encontrado = true;
+										break;
+									}
+								}
+							}
+							
+							if(encontrado == false) {
+								System.out.println("[RECHAZADOS] " + solicitudes[p] + " no encontrado");
+								rechazados++;
+								if(cantRechazados < registroRechazados.length) {
+									registroRechazados[cantRechazados] = solicitudes[p].replace("-", " ") + " - No pertenece a ningun paralelo del curso";
+									cantRechazados++;
+								}
+							}
+						}
+					}
+					System.out.println("Total procesados: " + aceptados);
+					System.out.println("Total Rechazados: " + rechazados);
+				}
+				break;
 			case "7":
 				entrar = false;
 				break;
@@ -82,10 +158,10 @@ public class Main {
 			String alumno = lineaAlumnos.nextLine();
 			String[] partes1 = alumno.split(";");
 			if(partes1.length >= 4) {
-				String nombre = partes1[0].trim();
-				String apellido = partes1[1].trim();
-				String rut = partes1[2].trim();
-				String paralelo = partes1[3].trim();
+				String nombre = partes1[0];
+				String apellido = partes1[1];
+				String rut = partes1[2];
+				String paralelo = partes1[3];
 				
 				if(paralelo.equals("C1")) {
 					alumnosC1[contador1] = nombre + "-" + apellido;
@@ -107,8 +183,9 @@ public class Main {
 		Scanner lineaSolicitudes = new Scanner(arch2);
 		String[] unicos = new String[100]; 
 		int contador = 0;
+		
 		while(lineaSolicitudes.hasNextLine()) {
-			String solicitud = lineaSolicitudes.nextLine().trim();
+			String solicitud = lineaSolicitudes.nextLine();
 			if(!solicitud.isEmpty()) {
 				boolean yaExiste = false;
 				for (int i = 0; i < contador; i++) {
