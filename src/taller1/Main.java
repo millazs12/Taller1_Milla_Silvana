@@ -27,7 +27,7 @@ public class Main {
 	static int versionC1 = 0;
 	static int versionC2 = 0;
 	static int versionRech = 0;
-
+	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		boolean entrar = true;
@@ -137,6 +137,139 @@ public class Main {
 					System.out.println("Total Rechazados: " + rechazados);
 				}
 				break;
+			case "3": 
+				if (contador1 == 0 && contador2 == 0) {
+					System.out.println("[AVISO] No hay alumnos cargados en el sistema. Cargue los archivos primero (Opcion 1).");
+					break;
+				}
+				
+				System.out.println("Como desea inscribir a la persona?");
+				System.out.println("1) Por nombre completo");
+				System.out.println("2) Por RUT");
+				System.out.print("Ingrese opcion: ");
+				String tipoInscripcion = sc.nextLine();
+				
+				if(tipoInscripcion.equals("1")) {
+					System.out.print("Ingrese nombre completo: ");
+					String nombreBuscado = sc.nextLine().replace(" ", "-");
+					boolean encontrado = false;
+					
+					for(int k = 0; k < alumnosC1.length; k++) {
+						if(alumnosC1[k] != null && alumnosC1[k].equalsIgnoreCase(nombreBuscado)) {
+							System.out.println("El alumno " + alumnosC1[k].replace("-", " ") + " pertenece al paralelo C1.");
+							
+							boolean yaEnGrupo = false;
+							for(int g = 0; g < cantGrupoC1; g++) {
+								if(grupoC1[g] != null && grupoC1[g].equalsIgnoreCase(alumnosC1[k])) {
+									yaEnGrupo = true;
+									break;
+								}
+							}
+							if(!yaEnGrupo && cantGrupoC1 < grupoC1.length) {
+								grupoC1[cantGrupoC1] = alumnosC1[k];
+								rutGrupoC1[cantGrupoC1] = rutC1[k];
+								cantGrupoC1++;
+							}
+							encontrado = true;
+							break;
+						}
+					}
+					
+					if(!encontrado) {
+						for(int k = 0; k < alumnosC2.length; k++) {
+							if(alumnosC2[k] != null && alumnosC2[k].equalsIgnoreCase(nombreBuscado)) {
+								System.out.println("El alumno " + alumnosC2[k].replace("-", " ") + " pertenece al paralelo C2.");
+								
+								boolean yaEnGrupo = false;
+								for(int g = 0; g < cantGrupoC2; g++) {
+									if(grupoC2[g] != null && grupoC2[g].equalsIgnoreCase(alumnosC2[k])) {
+										yaEnGrupo = true;
+										break;
+									}
+								}
+								if(!yaEnGrupo && cantGrupoC2 < grupoC2.length) {
+									grupoC2[cantGrupoC2] = alumnosC2[k];
+									rutGrupoC2[cantGrupoC2] = rutC2[k];
+									cantGrupoC2++;
+								}
+								encontrado = true;
+								break;
+							}
+						}
+					}
+					
+					if(!encontrado) {
+						System.out.println("El nombre no pertenece al curso.");
+						System.out.println("Se registrara su nombre en los rechazados.");
+						if(cantRechazados < registroRechazados.length) {
+							registroRechazados[cantRechazados] = nombreBuscado.replace("-", " ") + " - No pertenece a ningun paralelo del curso";
+							cantRechazados++;
+						}
+					}
+					
+				} else if(tipoInscripcion.equals("2")) {
+					System.out.print("Ingrese RUT: ");
+					String rutBuscado = sc.nextLine();
+					boolean encontrado = false;
+					
+					for(int k = 0; k < rutC1.length; k++) {
+						if(rutC1[k] != null && rutC1[k].equals(rutBuscado)) {
+							String nombreEncontrado = alumnosC1[k] != null ? alumnosC1[k].replace("-", " ") : "";
+							System.out.println("El RUT " + rutBuscado + " (" + nombreEncontrado + ") pertenece al paralelo C1.");
+							
+							boolean yaEnGrupo = false;
+							for(int g = 0; g < cantGrupoC1; g++) {
+								if(grupoC1[g] != null && grupoC1[g].equals(alumnosC1[k])) {
+									yaEnGrupo = true;
+									break;
+								}
+							}
+							if(!yaEnGrupo && cantGrupoC1 < grupoC1.length) {
+								grupoC1[cantGrupoC1] = alumnosC1[k];
+								rutGrupoC1[cantGrupoC1] = rutC1[k];
+								cantGrupoC1++;
+							}
+							encontrado = true;
+							break;
+						}
+					}
+					
+					if(!encontrado) {
+						for(int k = 0; k < rutC2.length; k++) {
+							if(rutC2[k] != null && rutC2[k].equals(rutBuscado)) {
+								String nombreEncontrado = alumnosC2[k] != null ? alumnosC2[k].replace("-", " ") : "";
+								System.out.println("El RUT " + rutBuscado + " (" + nombreEncontrado + ") pertenece al paralelo C2.");
+								
+								boolean yaEnGrupo = false;
+								for(int g = 0; g < cantGrupoC2; g++) {
+									if(grupoC2[g] != null && grupoC2[g].equals(alumnosC2[k])) {
+										yaEnGrupo = true;
+										break;
+									}
+								}
+								if(!yaEnGrupo && cantGrupoC2 < grupoC2.length) {
+									grupoC2[cantGrupoC2] = alumnosC2[k];
+									rutGrupoC2[cantGrupoC2] = rutC2[k];
+									cantGrupoC2++;
+								}
+								encontrado = true;
+								break;
+							}
+						}
+					}
+					
+					if(!encontrado) {
+						System.out.println("El RUT " + rutBuscado + " no pertenece al curso.");
+						System.out.println("No tenemos su nombre, por lo que se registrara solo el RUT en los rechazados.");
+						if(cantRechazados < registroRechazados.length) {
+							registroRechazados[cantRechazados] = "Sin nombre registrado, RUT: " + rutBuscado;
+							cantRechazados++;
+						}
+					}
+				} else {
+					System.out.println("Opcion invalida.");
+				}
+				break;
 			case "7":
 				entrar = false;
 				break;
@@ -183,7 +316,6 @@ public class Main {
 		Scanner lineaSolicitudes = new Scanner(arch2);
 		String[] unicos = new String[100]; 
 		int contador = 0;
-		
 		while(lineaSolicitudes.hasNextLine()) {
 			String solicitud = lineaSolicitudes.nextLine();
 			if(!solicitud.isEmpty()) {
