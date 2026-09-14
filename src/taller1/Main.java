@@ -3,16 +3,16 @@
 
 package taller1;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-	//Un par de variables
-	  //contadores
 	static int contador1 = 0;
 	static int contador2 = 0;
-	//listas por paralelo
+
 	static String[] grupoC1 = new String[100];
 	static String[] rutGrupoC1 = new String[100];
 	static int cantGrupoC1 = 0;
@@ -27,7 +27,7 @@ public class Main {
 	static int versionC1 = 0;
 	static int versionC2 = 0;
 	static int versionRech = 0;
-	
+
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		boolean entrar = true;
@@ -36,9 +36,8 @@ public class Main {
 		String[] alumnosC2 = new String[100];
 		String[] rutC2 = new String[100];
 		String[] solicitudes = new String[100];
-		//El while
+		
 		while(entrar) {
-			//el menu
 			System.out.println("===== Sistema de Control del Grupo POO =====");
 			System.out.println("1) Cargar archivos (Alumnos y Solicitudes)");
 			System.out.println("2) Procesar solicitudes (Filtrado automatico)");
@@ -480,7 +479,6 @@ public class Main {
 					System.out.println("Opcion de administracion invalida.");
 				}
 				break;
-			//caso 5
 			case "5":
 				System.out.println("--- Generar Reportes ---");
 				System.out.println("1) Reporte Paralelo C1");
@@ -546,23 +544,76 @@ public class Main {
 					System.out.println("Opcion de reporte invalida.");
 				}
 				break;
-			//caso 6
 			case "6":
+				System.out.println("===== ANALISIS ESTADISTICO =====");
+				
+				int totalAlumnosCurso = contador1 + contador2;
+				
+				int anonimosCount = 0;
+				for (int i = 0; i < cantRechazados; i++) {
+					if (registroRechazados[i] != null && registroRechazados[i].contains("Sin nombre registrado")) {
+						anonimosCount++;
+					}
+				}
+				
+				int totalIntentosAprox = totalAlumnosCurso + cantRechazados; 
+				
+				double porcentajeRechazados = 0.0;
+				if (totalIntentosAprox > 0) {
+					porcentajeRechazados = ((double) cantRechazados / totalIntentosAprox) * 100;
+				}
+				
+				double porcentajeC1 = 0.0;
+				double porcentajeC2 = 0.0;
+				if (totalAlumnosCurso > 0) {
+					porcentajeC1 = ((double) contador1 / totalAlumnosCurso) * 100;
+					porcentajeC2 = ((double) contador2 / totalAlumnosCurso) * 100;
+				}
+
+				System.out.println("1. Porcentaje de solicitudes rechazadas: " + String.format("%.2f", porcentajeRechazados) + "% (" + cantRechazados + " de " + totalIntentosAprox + " intentos)");
+				System.out.println("2. Alumnos en Paralelo C1: " + contador1 + " (" + String.format("%.2f", porcentajeC1) + "%)");
+				System.out.println("3. Alumnos en Paralelo C2: " + contador2 + " (" + String.format("%.2f", porcentajeC2) + "%)");
+				System.out.println("4. Cantidad de rechazados anonimos (solo RUT): " + anonimosCount);
+				System.out.println("================================");
+				break;
+			case "7":
 				entrar = false;
 				break;
 			default:
 				System.out.println("OPCION INVALIDA");
 				break;
-			
-			case "7":
-				entrar = false;
-				break;
-			default:
-				System.out.println("Opcion en desarrollo...");
-				break;
 			}
 		}
 		sc.close();
+	}
+
+	private static void leerSolicitudes(String[] solicitudes) throws java.io.IOException {
+		File arch2 = new File("Solicitudes.txt");
+		Scanner lineaSolicitudes = new Scanner(arch2);
+		String[] unicos = new String[100]; 
+		int contador = 0;
+		while(lineaSolicitudes.hasNextLine()) {
+			String solicitud = lineaSolicitudes.nextLine();
+			if(!solicitud.isEmpty()) {
+				boolean yaExiste = false;
+				for (int i = 0; i < contador; i++) {
+					if(solicitud.equals(unicos[i])) {
+						yaExiste = true;
+						break;
+					}
+				}
+				if(!yaExiste && contador < unicos.length) {
+					unicos[contador] = solicitud;
+					contador++;
+				}
+			}
+		}
+		lineaSolicitudes.close();
+		
+		for (int j = 0; j < contador; j++) {
+			solicitudes[j] = unicos[j];
+		}
+		System.out.println("- "+contador+" solicitudes de ingreso");
 	}
 
 	private static void leerAlumnos(String[] alumnosC1, String[] rutC1, String[] rutC2, String[] alumnosC2) throws java.io.IOException {
@@ -595,56 +646,28 @@ public class Main {
 		lineaAlumnos.close();
 	}
 
-	private static void leerSolicitudes(String[] solicitudes) throws java.io.IOException {
-		File arch2 = new File("Solicitudes.txt");
-		Scanner lineaSolicitudes = new Scanner(arch2);
-		String[] unicos = new String[100]; 
-		int contador = 0;
-		while(lineaSolicitudes.hasNextLine()) {
-			String solicitud = lineaSolicitudes.nextLine();
-			if(!solicitud.isEmpty()) {
-				boolean yaExiste = false;
-				for (int i = 0; i < contador; i++) {
-					if(solicitud.equals(unicos[i])) {
-						yaExiste = true;
-						break;
-					}
-				}
-				if(!yaExiste && contador < unicos.length) {
-					unicos[contador] = solicitud;
-					contador++;
+	private static void actualizarArchivoAlumnos(String[] alumnosC1, String[] rutC1, String[] alumnosC2, String[] rutC2) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter("Alumnos.txt"))) {
+			for (int i = 0; i < contador1; i++) {
+				if (alumnosC1[i] != null && rutC1[i] != null) {
+					String[] partesNombre = alumnosC1[i].split("-");
+					String nombre = partesNombre[0];
+					String apellido = partesNombre.length > 1 ? partesNombre[1] : "";
+					bw.write(nombre + ";" + apellido + ";" + rutC1[i] + ";C1");
+					bw.newLine();
 				}
 			}
-		}
-		lineaSolicitudes.close();
-		
-		for (int j = 0; j < contador; j++) {
-			solicitudes[j] = unicos[j];
-		}
-		System.out.println("- "+contador+" solicitudes de ingreso");
-		private static void actualizarArchivoAlumnos(String[] alumnosC1, String[] rutC1, String[] alumnosC2, String[] rutC2) {
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter("Alumnos.txt"))) {
-				for (int i = 0; i < contador1; i++) {
-					if (alumnosC1[i] != null && rutC1[i] != null) {
-						String[] partesNombre = alumnosC1[i].split("-");
-						String nombre = partesNombre[0];
-						String apellido = partesNombre.length > 1 ? partesNombre[1] : "";
-						bw.write(nombre + ";" + apellido + ";" + rutC1[i] + ";C1");
-						bw.newLine();
-					}
+			for (int i = 0; i < contador2; i++) {
+				if (alumnosC2[i] != null && rutC2[i] != null) {
+					String[] partesNombre = alumnosC2[i].split("-");
+					String nombre = partesNombre[0];
+					String apellido = partesNombre.length > 1 ? partesNombre[1] : "";
+					bw.write(nombre + ";" + apellido + ";" + rutC2[i] + ";C2");
+					bw.newLine();
 				}
-				for (int i = 0; i < contador2; i++) {
-					if (alumnosC2[i] != null && rutC2[i] != null) {
-						String[] partesNombre = alumnosC2[i].split("-");
-						String nombre = partesNombre[0];
-						String apellido = partesNombre.length > 1 ? partesNombre[1] : "";
-						bw.write(nombre + ";" + apellido + ";" + rutC2[i] + ";C2");
-						bw.newLine();
-					}
-				}
-			} catch (IOException e) {
-				System.out.println("Error al guardar los cambios en Alumnos.txt");
 			}
+		} catch (IOException e) {
+			System.out.println("Error al guardar los cambios en Alumnos.txt");
 		}
 	}
 }
