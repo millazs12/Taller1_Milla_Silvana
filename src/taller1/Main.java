@@ -270,6 +270,290 @@ public class Main {
 					System.out.println("Opcion invalida.");
 				}
 				break;
+			case "4":
+				if (contador1 == 0 && contador2 == 0) {
+					System.out.println("[AVISO] No hay alumnos cargados en el sistema. Cargue los archivos primero (Opcion 1).");
+					break;
+				}
+
+				System.out.println("--- Administracion del curso ---");
+				System.out.println("1) Cambiar el paralelo de un alumno (C1 <-> C2)");
+				System.out.println("2) Eliminar un alumno del curso");
+				System.out.println("3) Inscribir un alumno nuevo al curso");
+				System.out.print("Ingrese opcion: ");
+				String opcionAdmin = sc.nextLine();
+
+				if (opcionAdmin.equals("1")) {
+					System.out.print("Ingrese el RUT del alumno a cambiar de paralelo: ");
+					String rutCambio = sc.nextLine();
+					boolean cambiado = false;
+
+					for (int i = 0; i < contador1; i++) {
+						if (rutC1[i] != null && rutC1[i].equals(rutCambio)) {
+							String alumnoMovido = alumnosC1[i];
+							
+							for (int j = i; j < contador1 - 1; j++) {
+								alumnosC1[j] = alumnosC1[j + 1];
+								rutC1[j] = rutC1[j + 1];
+							}
+							alumnosC1[contador1 - 1] = null;
+							rutC1[contador1 - 1] = null;
+							contador1--;
+
+							alumnosC2[contador2] = alumnoMovido;
+							rutC2[contador2] = rutCambio;
+							contador2++;
+
+							for(int g = 0; g < cantGrupoC1; g++) {
+								if(grupoC1[g] != null && grupoC1[g].equals(alumnoMovido)) {
+									for(int gj = g; gj < cantGrupoC1 - 1; gj++) {
+										grupoC1[gj] = grupoC1[gj + 1];
+										rutGrupoC1[gj] = rutGrupoC1[gj + 1];
+									}
+									grupoC1[cantGrupoC1 - 1] = null;
+									rutGrupoC1[cantGrupoC1 - 1] = null;
+									cantGrupoC1--;
+
+									if(cantGrupoC2 < grupoC2.length) {
+										grupoC2[cantGrupoC2] = alumnoMovido;
+										rutGrupoC2[cantGrupoC2] = rutCambio;
+										cantGrupoC2++;
+									}
+									break;
+								}
+							}
+
+							actualizarArchivoAlumnos(alumnosC1, rutC1, alumnosC2, rutC2);
+							System.out.println("[EXITO] Alumno cambiado de C1 a C2 exitosamente.");
+							cambiado = true;
+							break;
+						}
+					}
+
+					if (!cambiado) {
+						for (int i = 0; i < contador2; i++) {
+							if (rutC2[i] != null && rutC2[i].equals(rutCambio)) {
+								String alumnoMovido = alumnosC2[i];
+
+								for (int j = i; j < contador2 - 1; j++) {
+									alumnosC2[j] = alumnosC2[j + 1];
+									rutC2[j] = rutC2[j + 1];
+								}
+								alumnosC2[contador2 - 1] = null;
+								rutC2[contador2 - 1] = null;
+								contador2--;
+
+								alumnosC1[contador1] = alumnoMovido;
+								rutC1[contador1] = rutCambio;
+								contador1++;
+
+								for(int g = 0; g < cantGrupoC2; g++) {
+									if(grupoC2[g] != null && grupoC2[g].equals(alumnoMovido)) {
+										for(int gj = g; gj < cantGrupoC2 - 1; gj++) {
+											grupoC2[gj] = grupoC2[gj + 1];
+											rutGrupoC2[gj] = rutGrupoC2[gj + 1];
+										}
+										grupoC2[cantGrupoC2 - 1] = null;
+										rutGrupoC2[cantGrupoC2 - 1] = null;
+										cantGrupoC2--;
+
+										if(cantGrupoC1 < grupoC1.length) {
+											grupoC1[cantGrupoC1] = alumnoMovido;
+											rutGrupoC1[cantGrupoC1] = rutCambio;
+											cantGrupoC1++;
+										}
+										break;
+									}
+								}
+
+								actualizarArchivoAlumnos(alumnosC1, rutC1, alumnosC2, rutC2);
+								System.out.println("[EXITO] Alumno cambiado de C2 a C1 exitosamente.");
+								cambiado = true;
+								break;
+							}
+						}
+					}
+
+					if (!cambiado) {
+						System.out.println("[ERROR] No se encontro un alumno con ese RUT en ningun paralelo.");
+					}
+
+				} else if (opcionAdmin.equals("2")) {
+					System.out.print("Ingrese el RUT del alumno a eliminar: ");
+					String rutEliminar = sc.nextLine();
+					boolean eliminado = false;
+
+					for (int i = 0; i < contador1; i++) {
+						if (rutC1[i] != null && rutC1[i].equals(rutEliminar)) {
+							String alumnoEliminado = alumnosC1[i];
+							for (int j = i; j < contador1 - 1; j++) {
+								alumnosC1[j] = alumnosC1[j + 1];
+								rutC1[j] = rutC1[j + 1];
+							}
+							alumnosC1[contador1 - 1] = null;
+							rutC1[contador1 - 1] = null;
+							contador1--;
+
+							for(int g = 0; g < cantGrupoC1; g++) {
+								if(grupoC1[g] != null && grupoC1[g].equals(alumnoEliminado)) {
+									for(int gj = g; gj < cantGrupoC1 - 1; gj++) {
+										grupoC1[gj] = grupoC1[gj + 1];
+										rutGrupoC1[gj] = rutGrupoC1[gj + 1];
+									}
+									grupoC1[cantGrupoC1 - 1] = null;
+									rutGrupoC1[cantGrupoC1 - 1] = null;
+									cantGrupoC1--;
+									break;
+								}
+							}
+
+							actualizarArchivoAlumnos(alumnosC1, rutC1, alumnosC2, rutC2);
+							System.out.println("[EXITO] Alumno eliminado del curso correctamente.");
+							eliminado = true;
+							break;
+						}
+					}
+
+					if (!eliminado) {
+						for (int i = 0; i < contador2; i++) {
+							if (rutC2[i] != null && rutC2[i].equals(rutEliminar)) {
+								String alumnoEliminado = alumnosC2[i];
+								for (int j = i; j < contador2 - 1; j++) {
+									alumnosC2[j] = alumnosC2[j + 1];
+									rutC2[j] = rutC2[j + 1];
+								}
+								alumnosC2[contador2 - 1] = null;
+								rutC2[contador2 - 1] = null;
+								contador2--;
+
+								for(int g = 0; g < cantGrupoC2; g++) {
+									if(grupoC2[g] != null && grupoC2[g].equals(alumnoEliminado)) {
+										for(int gj = g; gj < cantGrupoC2 - 1; gj++) {
+											grupoC2[gj] = grupoC2[gj + 1];
+											rutGrupoC2[gj] = rutGrupoC2[gj + 1];
+										}
+										grupoC2[cantGrupoC2 - 1] = null;
+										rutGrupoC2[cantGrupoC2 - 1] = null;
+										cantGrupoC2--;
+										break;
+									}
+								}
+
+								actualizarArchivoAlumnos(alumnosC1, rutC1, alumnosC2, rutC2);
+								System.out.println("[EXITO] Alumno eliminado del curso correctamente.");
+								eliminado = true;
+								break;
+							}
+						}
+					}
+
+					if (!eliminado) {
+						System.out.println("[ERROR] No se encontro ningun alumno con ese RUT.");
+					}
+
+				} else if (opcionAdmin.equals("3")) {
+					System.out.print("Ingrese nombre: ");
+					String nuevoNombre = sc.nextLine();
+					System.out.print("Ingrese apellido: ");
+					String nuevoApellido = sc.nextLine();
+					System.out.print("Ingrese RUT: ");
+					String nuevoRut = sc.nextLine();
+					System.out.print("Ingrese paralelo (C1 o C2): ");
+					String nuevoParalelo = sc.nextLine().toUpperCase();
+
+					if (nuevoParalelo.equals("C1")) {
+						alumnosC1[contador1] = nuevoNombre + "-" + nuevoApellido;
+						rutC1[contador1] = nuevoRut;
+						contador1++;
+						actualizarArchivoAlumnos(alumnosC1, rutC1, alumnosC2, rutC2);
+						System.out.println("[EXITO] Alumno inscrito nuevo en C1.");
+					} else if (nuevoParalelo.equals("C2")) {
+						alumnosC2[contador2] = nuevoNombre + "-" + nuevoApellido;
+						rutC2[contador2] = nuevoRut;
+						contador2++;
+						actualizarArchivoAlumnos(alumnosC1, rutC1, alumnosC2, rutC2);
+						System.out.println("[EXITO] Alumno inscrito nuevo en C2.");
+					} else {
+						System.out.println("[ERROR] Paralelo invalido. Debe ser C1 o C2.");
+					}
+				} else {
+					System.out.println("Opcion de administracion invalida.");
+				}
+				break;
+			//caso 5
+			case "5":
+				System.out.println("--- Generar Reportes ---");
+				System.out.println("1) Reporte Paralelo C1");
+				System.out.println("2) Reporte Paralelo C2");
+				System.out.println("3) Reporte de Rechazados");
+				System.out.print("Ingrese opcion de reporte: ");
+				String opReporte = sc.nextLine();
+
+				File dirReportes = new File("Reportes");
+				if (!dirReportes.exists()) {
+					dirReportes.mkdir();
+				}
+
+				if (opReporte.equals("1")) {
+					versionC1++;
+					String nombreArchivo = "Reportes/ReporteC1-V" + versionC1 + ".txt";
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivo))) {
+						bw.write("=== Miembros del grupo - Paralelo C1 ===");
+						bw.newLine();
+						for (int i = 0; i < cantGrupoC1; i++) {
+							if (grupoC1[i] != null && rutGrupoC1[i] != null) {
+								bw.write(grupoC1[i].replace("-", " ") + " - " + rutGrupoC1[i]);
+								bw.newLine();
+							}
+						}
+						System.out.println("[EXITO] Reporte generado exitosamente: " + nombreArchivo);
+					} catch (IOException e) {
+						System.out.println("[ERROR] No se pudo generar el reporte C1.");
+					}
+				} else if (opReporte.equals("2")) {
+					versionC2++;
+					String nombreArchivo = "Reportes/ReporteC2-V" + versionC2 + ".txt";
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivo))) {
+						bw.write("=== Miembros del grupo - Paralelo C2 ===");
+						bw.newLine();
+						for (int i = 0; i < cantGrupoC2; i++) {
+							if (grupoC2[i] != null && rutGrupoC2[i] != null) {
+								bw.write(grupoC2[i].replace("-", " ") + " - " + rutGrupoC2[i]);
+								bw.newLine();
+							}
+						}
+						System.out.println("[EXITO] Reporte generado exitosamente: " + nombreArchivo);
+					} catch (IOException e) {
+						System.out.println("[ERROR] No se pudo generar el reporte C2.");
+					}
+				} else if (opReporte.equals("3")) {
+					versionRech++;
+					String nombreArchivo = "Reportes/Rechazados-V" + versionRech + ".txt";
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivo))) {
+						bw.write("=== Solicitudes rechazadas ===");
+						bw.newLine();
+						for (int i = 0; i < cantRechazados; i++) {
+							if (registroRechazados[i] != null) {
+								bw.write(registroRechazados[i]);
+								bw.newLine();
+							}
+						}
+						System.out.println("[EXITO] Reporte generado exitosamente: " + nombreArchivo);
+					} catch (IOException e) {
+						System.out.println("[ERROR] No se pudo generar el reporte de rechazados.");
+					}
+				} else {
+					System.out.println("Opcion de reporte invalida.");
+				}
+				break;
+			//caso 6
+			case "6":
+				entrar = false;
+				break;
+			default:
+				System.out.println("OPCION INVALIDA");
+				break;
+			
 			case "7":
 				entrar = false;
 				break;
@@ -338,5 +622,29 @@ public class Main {
 			solicitudes[j] = unicos[j];
 		}
 		System.out.println("- "+contador+" solicitudes de ingreso");
+		private static void actualizarArchivoAlumnos(String[] alumnosC1, String[] rutC1, String[] alumnosC2, String[] rutC2) {
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter("Alumnos.txt"))) {
+				for (int i = 0; i < contador1; i++) {
+					if (alumnosC1[i] != null && rutC1[i] != null) {
+						String[] partesNombre = alumnosC1[i].split("-");
+						String nombre = partesNombre[0];
+						String apellido = partesNombre.length > 1 ? partesNombre[1] : "";
+						bw.write(nombre + ";" + apellido + ";" + rutC1[i] + ";C1");
+						bw.newLine();
+					}
+				}
+				for (int i = 0; i < contador2; i++) {
+					if (alumnosC2[i] != null && rutC2[i] != null) {
+						String[] partesNombre = alumnosC2[i].split("-");
+						String nombre = partesNombre[0];
+						String apellido = partesNombre.length > 1 ? partesNombre[1] : "";
+						bw.write(nombre + ";" + apellido + ";" + rutC2[i] + ";C2");
+						bw.newLine();
+					}
+				}
+			} catch (IOException e) {
+				System.out.println("Error al guardar los cambios en Alumnos.txt");
+			}
+		}
 	}
 }
